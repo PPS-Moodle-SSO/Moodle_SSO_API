@@ -2,7 +2,6 @@
 using Moodle_SSO_API.Data;
 using Moodle_SSO_API.Repository.IRepository;
 using System.Linq.Expressions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Moodle_SSO_API.Repository
 {

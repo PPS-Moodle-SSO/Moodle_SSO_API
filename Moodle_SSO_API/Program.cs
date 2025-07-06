@@ -2,9 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using Moodle_SSO_API;
 using Moodle_SSO_API.Repository.IRepository;
 using Moodle_SSO_API.Data;
-using Moodle_SSO_API.Handlers;
 using Moodle_SSO_API.Repository;
 using Moodle_SSO_API.Handlers.IHandler;
+using Moodle_SSO_API.Services.Interfaces;
+using Moodle_SSO_API.Services.Moodle;
+using Moodle_SSO_API.Services.HTTP;
+using Moodle_SSO_API.Handlers.Enterprises;
+using Moodle_SSO_API.Handlers.Moodles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,9 +39,14 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<MappingConfig>();
 });
 
-builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IEnterpriseRepository, EnterpriseRepository>();
 
-builder.Services.AddScoped<IAccountHandler, AccountHandler>();
+builder.Services.AddScoped<IEnterpriseHandler, EnterpriseHandler>();
+builder.Services.AddScoped<IMoodleHandler, MoodleHandler>();
+
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IHttpService, HttpService>();
+builder.Services.AddScoped<IMoodleService, MoodleService>();
 
 var app = builder.Build();
 
@@ -57,4 +66,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+app.Run(); 
