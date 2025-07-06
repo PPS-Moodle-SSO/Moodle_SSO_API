@@ -9,10 +9,6 @@ namespace Moodle_SSO_API.Data
         {
 
         }
-
-        public DbSet<BankCard> bank_card { get; set; }
-        public DbSet<Account> account { get; set; }
-
-
+        public DbSet<Enterprise> Enterprise { get; set; }
     }
 }
