@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Moodle_SSO_API.Controllers.Enterprises.Requests;
 using Moodle_SSO_API.Controllers.Enterprises.Responses;
+using Moodle_SSO_API.Exceptions;
 using Moodle_SSO_API.Handlers.Enterprises.ModelsDto;
 using Moodle_SSO_API.Handlers.IHandler;
 using Moodle_SSO_API.Models;
@@ -32,23 +33,41 @@ namespace Moodle_SSO_API.Controllers.Enterprises
         public async Task<ActionResult<APIResponse<UpdateEnterpriseResponse>>> UpdateEnterprise([FromBody] UpdateEnterpriseRequest request)
         {
             var _response = new APIResponse<UpdateEnterpriseResponse>();
+
             try
             {
                 var updateEnterpriseRequestDto = _mapper.Map<UpdateEnterpriseRequestDto>(request);
                 var enterprise = await _enterpriseHandler.UpdateEnterprise(updateEnterpriseRequestDto);
-                var updateEnterpriseResponse = _mapper.Map<UpdateEnterpriseResponse>(enterprise);
 
+                var updateEnterpriseResponse = _mapper.Map<UpdateEnterpriseResponse>(enterprise);
                 _response.Result = updateEnterpriseResponse;
-                _response.StatusCode = HttpStatusCode.Created;
+                _response.StatusCode = HttpStatusCode.OK;
+
                 return Ok(_response);
+            }
+            catch (EnterpriseNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Enterprise no encontrada: {IdEnterprise}", request.IdEnterprise);
+                _response.IsSuccessful = false;
+                _response.StatusCode = HttpStatusCode.NotFound;
+                _response.ErrorsMessage = new List<string> { ex.Message };
+                return NotFound(_response);
+            }
+            catch (InvalidEnterpriseDataException ex)
+            {
+                _logger.LogWarning(ex, "Datos inválidos al actualizar la Enterprise con ID {IdEnterprise}", request.IdEnterprise);
+                _response.IsSuccessful = false;
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorsMessage = new List<string> { ex.Message };
+                return BadRequest(_response);
             }
             catch (Exception ex)
             {
-                _logger.LogError("UpdateEnterprise", ex.Message);
+                _logger.LogError(ex, "Error al actualizar la Enterprise con ID {IdEnterprise}", request.IdEnterprise);
                 _response.IsSuccessful = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorsMessage = new List<string>() { ex.ToString() };
-                return BadRequest(_response);
+                _response.ErrorsMessage = new List<string> { ex.ToString() };
+                return StatusCode(StatusCodes.Status500InternalServerError, _response);
             }
         }
     }

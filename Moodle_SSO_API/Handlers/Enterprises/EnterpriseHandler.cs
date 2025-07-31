@@ -1,4 +1,5 @@
-﻿using Moodle_SSO_API.Handlers.Enterprises.ModelsDto;
+﻿using Moodle_SSO_API.Exceptions;
+using Moodle_SSO_API.Handlers.Enterprises.ModelsDto;
 using Moodle_SSO_API.Handlers.IHandler;
 using Moodle_SSO_API.Models;
 using Moodle_SSO_API.Repository.IRepository;
@@ -34,10 +35,21 @@ namespace Moodle_SSO_API.Handlers.Enterprises
             var enterprise = await _enterpriseRepository.Get(e => e.Domain.Trim() == domain.Trim());
             return enterprise;
         }
-        
+
         public async Task<Enterprise?> UpdateEnterprise(UpdateEnterpriseRequestDto requestDto)
         {
+            if (string.IsNullOrWhiteSpace(requestDto.MoodleUrl) ||
+                string.IsNullOrWhiteSpace(requestDto.MoodleApiKey))
+            {
+                throw new InvalidEnterpriseDataException("MoodleUrl y MoodleApiKey no pueden estar vacíos.");
+            }
+
             var enterprise = await _enterpriseRepository.Get(e => e.IdEnterprise == requestDto.IdEnterprise);
+
+            if (enterprise == null)
+            {
+                throw new EnterpriseNotFoundException($"Enterprise con ID {requestDto.IdEnterprise} no encontrada.");
+            }
 
             enterprise.MoodleUrl = requestDto.MoodleUrl;
             enterprise.MoodleApiKey = requestDto.MoodleApiKey;
