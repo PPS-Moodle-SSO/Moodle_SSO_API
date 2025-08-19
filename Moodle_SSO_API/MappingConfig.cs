@@ -18,8 +18,13 @@ namespace Moodle_SSO_API
             CreateMap<Enterprise, UpdateEnterpriseResponse>().ReverseMap();
 
             //Moodle Mapping
-            CreateMap<GetUserByEmailResponse, GetUserResponseDto>().ReverseMap();
             CreateMap<GetUserResponseDto, GetUserResponse>().ReverseMap();
+            CreateMap<Services.Moodle.Models.GetUserByEmailResponse, GetUserResponseDto>().ReverseMap();
+            CreateMap<Services.Moodle.Models.AuthenticateResponse, AuthenticateResponseDto>().ReverseMap();
+            CreateMap<AuthenticateResponseDto, Controllers.Moodle.Responses.AuthenticateResponse>()
+                .ForMember(dest => dest.UserData, opt => opt.MapFrom((src, dest, destMember, context) =>
+                    src.UserData != null ? src.UserData.Select(x => context.Mapper.Map<GetUserResponse>(x)).ToList() : null))
+                .ReverseMap();
         }
     }
 }

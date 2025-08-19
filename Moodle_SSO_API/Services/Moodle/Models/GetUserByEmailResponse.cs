@@ -2,9 +2,8 @@
 
 namespace Moodle_SSO_API.Services.Moodle.Models
 {
-    public class GetUserByEmailResponse
+    public class GetUserByEmailResponse : List<GetUserResponseDto>
     {
-        public List<GetUserResponseDto> Users { get; set; }
     }
 
 }
