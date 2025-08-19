@@ -40,6 +40,7 @@ namespace Moodle_SSO_API.Services.Moodle
             if (httpResponse?.StatusCode == HttpStatusCode.OK)
                 response = CommonHelper.DeserializeObject<GetUserByEmailResponse>(httpResponseContent);
             else
+                throw new Exception($"HTTP Error: {httpResponse?.StatusCode} - Content: {httpResponseContent}");
 
             return response;
         }
