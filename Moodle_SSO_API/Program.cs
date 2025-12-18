@@ -9,6 +9,7 @@ using Moodle_SSO_API.Services.Moodle;
 using Moodle_SSO_API.Services.HTTP;
 using Moodle_SSO_API.Handlers.Enterprises;
 using Moodle_SSO_API.Handlers.Moodles;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

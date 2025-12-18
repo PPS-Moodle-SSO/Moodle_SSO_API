@@ -19,10 +19,40 @@ namespace Moodle_SSO_API.Handlers.Moodles
         public async Task<GetUserResponseDto?> TryGetUser(GetUserRequestDto requestDto)
         {
             var enterprise = requestDto.Enterprise;
-            var getUserByEmailResponse = await _moodleService.GetUserByEmail(enterprise.MoodleUrl, enterprise.MoodleApiKey, requestDto.UserEmail);
-            var getUserResponseDto = _mapper.Map<GetUserResponseDto>(getUserByEmailResponse);
+            var getUserByEmailResponse = await _moodleService.GetUserByEmail(
+                enterprise.MoodleUrl,
+                enterprise.MoodleApiKey,
+                requestDto.UserEmail
+            );
 
-            return getUserResponseDto;
+            // La respuesta es una lista, tomo el primer usuario si existe
+            var firstUser = getUserByEmailResponse?.FirstOrDefault();
+            if (firstUser != null)
+            {
+                var hasFirst = !string.IsNullOrWhiteSpace(firstUser.Firstname);
+                var hasLast = !string.IsNullOrWhiteSpace(firstUser.Lastname);
+                if ((!hasFirst || !hasLast) && !string.IsNullOrWhiteSpace(firstUser.Fullname))
+                {
+                    var parts = firstUser.Fullname.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    if (!hasFirst && parts.Length > 0)
+                        firstUser.Firstname = parts[0];
+                    if (!hasLast && parts.Length > 1)
+                        firstUser.Lastname = string.Join(' ', parts.Skip(1));
+                }
+            }
+            return firstUser;
+        }
+
+        public async Task<AuthenticateResponseDto?> Authenticate(AuthenticateRequestDto requestDto)
+        {
+            var authenticateResponse = await _moodleService.Authenticate(
+                requestDto.Enterprise.MoodleUrl,
+                requestDto.Enterprise.MoodleApiKey,
+                requestDto.Email
+            );
+            var authenticateResponseDto = _mapper.Map<AuthenticateResponseDto>(authenticateResponse);
+
+            return authenticateResponseDto;
         }
     }
 }
