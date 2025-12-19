@@ -27,11 +27,19 @@ namespace Moodle_SSO_API.Services.Moodle
         {
             GetUserByEmailResponse response;
 
-            var url = $"{moodleUrl}/webservice/rest/server.php?wstoken={token}&wsfunction={WSFunction}&moodlewsrestformat={MoodleWSRestFormat}&field=email&values[0]={Uri.EscapeDataString(value)}";
-            
-            Console.WriteLine($"Calling URL: {url}");
-            
-            var httpResponse = await _httpService.SendGetRequest(url, null, 1);
+            var url = $"{moodleUrl}/webservice/rest/server.php";
+            var request = new Dictionary<string, string>
+            {
+                { "wstoken", token },
+                { "wsfunction", WSFunction },
+                { "moodlewsrestformat", MoodleWSRestFormat },
+                { "field", "email" },
+                { "values[0]", value }
+            };
+
+            Console.WriteLine($"Calling URL: {url} with POST");
+
+            var httpResponse = await _httpService.SendPostRequest(url, request, null, bodyType: HttpBodyTypeEnum.UrlEncoded);
             var httpResponseContent = await httpResponse?.Content?.ReadAsStringAsync()!;
 
             Console.WriteLine($"Response Status: {httpResponse?.StatusCode}");
